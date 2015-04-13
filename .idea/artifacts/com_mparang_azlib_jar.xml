@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="com.mparang.azlib:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/com_mparang_azlib_jar</output-path>
+    <root id="archive" name="com.mparang.azlib.jar">
+      <element id="module-output" name="com.mparang.azlib" />
+    </root>
+  </artifact>
+</component>
