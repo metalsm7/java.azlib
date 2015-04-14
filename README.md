@@ -1,48 +1,81 @@
 # java.azlib
 
-java, .net, node.js 에서 동일한 방식으로 사용가능한 라이브러리입니다.<br />
-아직 실사용으로는 부족한 부분이 많은 상태이며, 순차적으로 기능별로 추가해 나갈 예정입니다.
+##### *java, .net, node.js 에서 특정 동작에 대해 동일한 방식으로 사용하기 위한 라이브러리입니다.*
 
-1. Basic data handling class<br />
-1) AZData<br />
-: AZData는 키:값 의 형태로 구성된 map형식의 클래스입니다.<br />
-: 키값은 string값으로 특정 지어지며, 탐색시 입력된 순서대로의 int값으로도 특정지을 수 있습니다.<br />
-<br />
-2) AZList<br />
-: 내부적으로 List&lt;AZData&gt; 를 가집니다.<br />
-<br />
-3) 기본적으로 Sql결과값 &lt;-&gt; AZData/AZList &lt;-&gt; JSON 상호 변환이 가능합니다.<br />
-<br />
-2. JSON<br />
-1) parsing<br />
-JSON형식을 지키는 텍스트에 대해 AZData, AZList형식으로 변경이 가능하며, 역으로도 가능합니다.<br />
-ex)<br />
-string json_string = "{<br />
-&nbsp;&nbsp;&nbsp;&nbsp;  \"key1"\: \"value1\",<br />
-&nbsp;&nbsp;&nbsp;&nbsp;  \"key2"\: {\"sub_key1\": \"sub_value1\", \"sub_key2\": \"sub_value2\"},<br />
-&nbsp;&nbsp;&nbsp;&nbsp;  \"key3"\: [ {\"list_key1\": \"list_value1\"}, {\"list_key2\": \"list_value2\"}, {\"list_key3\": \"list_value3\"} ]<br />
-}";<br />
-<br />
-AZData json_data = AZString.JSON.Init(json_string).ToAZData();<br />
-json_data.get("key1"); // -> "value1"<br />
-AZData data_key2 = json_data.get(1); // -> AZData<br />
-data_key2.get(0); // -> "sub_value1"<br />
-data_key2.get("sub_key2"); // -> "sub_value2"<br />
-AZList list_key3 = json_data.get("key3"); // -> AZList<br />
-list_key3.get(0).get("list_key1"); // -> "list_value1"<br />
-AZData list_key3_data = list_key3.get(1); // -> AZData<br />
-list_key3_data.get("list_key2"); // -> "list_value2"<br />
-<br />
-string json_list_key3 = list_key3.ToJsonString(); <br />
-&nbsp;&nbsp;&nbsp;&nbsp;// -> [ {\"list_key1\": \"list_value1\"}, {\"list_key2\": \"list_value2\"}, {\"list_key3\": \"list_value3\"} ]<br />
-string json_data_key2 = data_key2.ToJsonString(); <br />
-&nbsp;&nbsp;&nbsp;&nbsp;// -> {\"sub_key1\": \"sub_value1\", \"sub_key2\": \"sub_value2\"}<br />
-string json_data_copy = json_data.ToJsonString(); <br />
-&nbsp;&nbsp;&nbsp;&nbsp;/*<br />
-&nbsp;&nbsp;&nbsp;&nbsp;"{<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  \"key1"\: \"value1\",<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  \"key2"\: {\"sub_key1\": \"sub_value1\", \"sub_key2\": \"sub_value2\"},<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  \"key3"\: [ {\"list_key1\": \"list_value1\"}, {\"list_key2\": \"list_value2\"}, {\"list_key3\": \"list_value3\"} ]<br />
-&nbsp;&nbsp;&nbsp;&nbsp;}";<br />
-&nbsp;&nbsp;&nbsp;&nbsp; */<br />
-<br />
+#### 기본 자료형 클래스
+
+* AZData<br />
+1) key(string):value(object)의 형태를 가집니다. <br />
+2) 동일한 키값을 여러개 가질 수 있습니다.<br />
+3) key값 또는 index(입력한 순서)값으로 탐색이 가능합니다.<br />
+4) 동일한 key값이 여러개인 경우, 최초로 입력된 key값에 대응하는 value값을 반환합니다.
+
+* AZList<br />
+내부적으로 List<AZData)를 가진다.
+
+#### SQL 처리 클래스
+
+* AZSql<br />
+현재는 단순히 쿼리문에 대한 결과값 반환 처리만 가능합니다.<br />
+*(현재 지원 sql서버: mysql[mysql-conector-java.jar 사용], sqlite[sqlite-jdbc.jar 사용], sqlite_android[sqldroid.jar 사용])*
+
+1) 초기화
+```java
+String setup_string = "{sql_type:mysql, server:127.0.0.1, port:3306, id:user, pw:password, catalog:database}";
+AZSql sql = new AZSql(setup_string);
+```
+2) 쿼리 실행
+```java
+int affected_count = 0;
+affected_count = sql.executeUpdate("INSERT ...");
+affected_count = sql.executeUpdate("UPDATE ...");
+affected_count = sql.executeUpdate("DELETE ...");
+```
+3) 쿼리 결과값 받아오기
+
+*단일 결과값*
+```java
+String result_string = sql.get("SELECT id FROM user_info WHERE idx=1;");
+int result_int = AZString.Init(sql.Get("SELECT idx FROM user_info WHERE id='test';")).ToInt(-1);
+```
+*단행 결과값*
+```java
+AZData data = sql.getData("SELECT idx, id, name, email FROM user_info WHERE idx=1;");
+```
+*다행 결과값*
+```java
+AZList list = sql.getList("SELECT idx, id, name, email FROM user_info WHERE idx in (1, 2, 3, 4, 5);");
+```
+
+#### JSON의 처리
+
+* Parsing
+
+```java
+String json_string = "
+  \"key1"\: \"value1\",
+  \"key2"\: {\"sub_key1\": \"sub_value1\", \"sub_key2\": \"sub_value2\"},
+  \"key3"\: [ {\"list_key1\": \"list_value1\"}, {\"list_key2\": \"list_value2\"}, {\"list_key3\": \"list_value3\"} ]
+";
+AZData json_data = AZString.JSON.Init(json_string).toAZData();
+```
+
+* JSON으로 변환
+```java
+AZData json_data = new AZData();
+AZData data_sub = new AZData();
+AZList list_sub = new AZList();
+
+data_sub.add("sub_key1", "sub_value1");
+data_sub.add("sub_key2", "sub_value2");
+
+list_sub.add(new AZData("list_key1", "list_value1"));
+list_sub.add(new AZData("list_key2", "list_value2"));
+list_sub.add(new AZData("list_key3", "list_value3"));
+
+json_data.add("key1", "value1");
+json_data.add("key2", data_sub);
+json_data.add("key3", list_sub);
+
+String json_string = json_data.toJsonString();
+```
