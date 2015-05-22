@@ -19,6 +19,9 @@ package com.mparang.azlib.network;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -77,7 +80,7 @@ public class AZHttp {
     public void setCookie(String pCookie) { this.cookie = pCookie; }
 
     public void addCookie(String pKey, String pValue) {
-        addCookie(pKey, pValue);
+        addCookie(pKey, pValue, AZHttp.ENCODING_UTF_8);
     }
 
     public void addCookie(String pKey, String pValue, String pEncode) {
@@ -152,6 +155,88 @@ public class AZHttp {
         inReader = null;
 
         return rtnValue;
+    }
+
+    public long getFileSize() {
+        HttpURLConnection conn = null;
+        try {
+            conn = (HttpURLConnection) new URL(this.getUrl()).openConnection();
+            conn.setRequestMethod("HEAD");
+            conn.getInputStream();
+            return conn.getContentLength();
+        }
+        catch (Exception ex) {
+            return -1;
+        }
+        finally {
+            conn.disconnect();
+        }
+    }
+
+    /**
+     * 지정된 URL로부터 해당 파일을 지정된 path로 저장
+     * 작성일 : 2015-05-22 이용훈
+     * @param p_path    다운로드할 파일의 저장위치
+     * @param p_callback    다운로드가 진행중일때 호출되는 객체
+     * @param p_callback_complete   다운로드가 완료되었을때 호출되는 객체
+     * @throws Exception
+     */
+    public void download(String p_path, ICallbackDownload p_callback, ICallbackDownloadComplete p_callback_complete) throws Exception {
+        if (this.getUrl().length() < 1) {
+            throw new Exception("Target URL is not specified..");
+        }
+
+        if (p_path.length() < 1) {
+            throw new Exception("Target file path is not specified..");
+        }
+
+        long file_size = getFileSize();
+
+        BufferedInputStream reader = null;
+        FileOutputStream writer = null;
+        try {
+            reader = new BufferedInputStream(new URL(this.getUrl()).openStream());
+            writer = new FileOutputStream(p_path);
+
+            byte data[] = new byte[1024];
+            int count;
+            long current_count = 0;
+            while((count = reader.read(data, 0, 1024)) != -1) {
+                writer.write(data, 0, count);
+                current_count += count;
+
+                if (p_callback != null) {
+                    p_callback.callback(current_count, file_size);
+                }
+            }
+        }
+        finally {
+            if (reader != null) {
+                reader.close();
+            }
+            if (writer != null) {
+                writer.close();
+            }
+        }
+
+        if (p_callback_complete != null) {
+            p_callback_complete.callback(file_size);
+        }
+    }
+
+
+    /**
+     * 작성일 : 2015-05-22 이용훈
+     */
+    public interface ICallbackDownload extends Serializable {
+        public void callback(long p_current, long p_total);
+    }
+
+    /**
+     * 작성일 : 2015-05-22 이용훈
+     */
+    public interface ICallbackDownloadComplete extends Serializable {
+        public void callback(long p_total);
     }
 }
 

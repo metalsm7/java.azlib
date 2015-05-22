@@ -74,6 +74,7 @@ public class AZString {
         return rtnValue;
     }
 
+    @Override
     public String toString() {
         return string();
     }
@@ -478,6 +479,231 @@ public class AZString {
         return rtnValue;
     }
 
+    public static class XML {
+        private final String xml;
+
+        public XML(String p_xml) { this.xml = p_xml; }
+
+        public static AZString.XML init(String p_xml) { return new AZString.XML(p_xml); }
+
+
+        private static String replaceInnerDQ(String pString, char p_replace_chr) {
+            return replaceInner(pString, "\"", "\"", p_replace_chr);
+        }
+
+        private static String replaceInner(String pString, String pStartString, String pEndString, char p_replace_chr) {
+            StringBuilder builder = new StringBuilder();
+
+            int dqStartIdx = -1, dqEndIdx = -1, idx = 0, prevIdx = 0;
+            int startCharExistAfterDQStart = 0, idxAfterDQStart = -1;   // appended
+            boolean inDQ = false;
+            while (true) {
+                idx = inDQ ? pString.indexOf(pEndString, idx) : pString.indexOf(pStartString, idx);
+                if (idx > -1) {
+                    if (idx == 0 || idx > 0 && pString.charAt(idx - 1) != '\\') {
+                        if (inDQ) {
+
+                            // appended
+                            idxAfterDQStart = pString.indexOf(pStartString, startCharExistAfterDQStart == 0 ? (dqStartIdx + 1) : idxAfterDQStart + 1);
+                            if (idxAfterDQStart > -1 && idxAfterDQStart < idx && pString.charAt(idxAfterDQStart - 1) != '\\') {
+                                startCharExistAfterDQStart = 1;
+                                idx += 1;
+                                continue;
+                            }
+                            // appended
+
+                            dqEndIdx = idx;
+                            inDQ = false;
+
+                            if (dqEndIdx > -1) {
+                                builder.append(AZString.getRepeat("" + p_replace_chr, dqEndIdx - dqStartIdx - 1));
+                            }
+                        }
+                        else {
+                            dqStartIdx = idx;
+                            inDQ = true;
+                            builder.append(pString.substring(prevIdx, idx) + pStartString);
+                        }
+                    }
+                    prevIdx = idx;
+                    idx++;
+                }
+                else {
+                    builder.append(pString.substring(dqEndIdx < 0 ? 0 : dqEndIdx));
+                    break;
+                }
+            }
+            return builder.toString();
+        }
+
+        public AZData getData() { return toAZData(); }
+        public AZData toAZData() { return AZString.XML.toAZData(this.xml); }
+        public static AZData getData(String p_xml_string) { return toAZData(p_xml_string); }
+        public static AZData toAZData(String p_xml_string) {
+            AZData rtn_value = new AZData();
+            p_xml_string = p_xml_string.trim();
+            if (p_xml_string.length() < 3) {
+                return rtn_value;
+            }
+            if (p_xml_string.toLowerCase().startsWith("<?xml")) {
+                int index_xml = p_xml_string.indexOf("?>");
+                if (index_xml < 0 || index_xml >= p_xml_string.length()) {
+                    return rtn_value;
+                }
+                else {
+                    p_xml_string = p_xml_string.substring(index_xml + 2);
+                }
+            }
+            if (p_xml_string.startsWith("<") && p_xml_string.endsWith(">")) {
+                p_xml_string = p_xml_string.substring(1, p_xml_string.length()).trim();
+                String rmDQStr = replaceInnerDQ(p_xml_string, '_');
+                //Console.WriteLine("test : " + rmDQStr);
+
+                int idx_closer = rmDQStr.indexOf(">");
+                String tag_name = "";
+                if (rmDQStr.indexOf(" ") > idx_closer) {
+                    tag_name = p_xml_string.substring(0, idx_closer - 1).trim();
+                }
+                else {
+                    tag_name = p_xml_string.substring(0, rmDQStr.indexOf(" ")).trim();
+                }
+                //Console.WriteLine("tag_name : " + tag_name);
+                //
+                rtn_value.setName(tag_name);
+
+                int idx_ender = rmDQStr.indexOf("</" + tag_name + ">");
+
+                String tag_inner_string = p_xml_string.substring(p_xml_string.indexOf(" "), idx_closer).trim();
+                //Console.WriteLine("tag_inner_string : " + tag_inner_string);
+
+                String tag_inner_string_rpDQ = replaceInnerDQ(tag_inner_string, '_');
+                //Console.WriteLine("tag_inner_string_rpDQ : " + tag_inner_string_rpDQ);
+
+                int pre_idx = -1, start_idx = 0;
+                while (true) {
+                    if ((start_idx = tag_inner_string_rpDQ.indexOf(" ", ++pre_idx)) > -1) {
+                        //Console.WriteLine("tag_inner_string_rpDQ.index : " + pre_idx + " / " + start_idx);
+                        String attribute = tag_inner_string.substring(pre_idx, start_idx);
+                        //Console.WriteLine("tag_inner_string_rpDQ.attribute : " + attribute);
+
+                        String attribute_name = attribute.substring(0, attribute.indexOf("=")).trim();
+                        String attribute_value = attribute.substring(attribute.indexOf("=") + 1).trim();
+                        if (attribute_value.length() > 1) {
+                            if (attribute_value.startsWith("\"") && attribute_value.endsWith("\"")) {
+                                attribute_value = attribute_value.substring(1, attribute_value.length() - 1);
+                            }
+                        }
+                        //
+                        //Console.WriteLine("tag_inner_string_rpDQ.attributes : " + attribute_name + ":" + attribute_value);
+                        rtn_value.Attribute.add(attribute_name, attribute_value);
+                        pre_idx = start_idx;
+                    }
+                    else if ((start_idx = tag_inner_string_rpDQ.indexOf(" ", ++pre_idx)) < 0 && tag_inner_string_rpDQ.substring(pre_idx + 1).length() > 2) {
+                        String attribute = tag_inner_string.substring(pre_idx - 1); ;
+
+                        String attribute_name = attribute.substring(0, attribute.indexOf("=")).trim();
+                        String attribute_value = attribute.substring(attribute.indexOf("=") + 1).trim();
+                        if (attribute_value.length() > 1) {
+                            if (attribute_value.startsWith("\"") && attribute_value.endsWith("\"")) {
+                                attribute_value = attribute_value.substring(1, attribute_value.length() - 1);
+                            }
+                        }
+                        //
+                        //Console.WriteLine("tag_inner_string_rpDQ.attributes.2 : " + attribute_name + ":" + attribute_value);
+                        rtn_value.Attribute.add(attribute_name, attribute_value);
+                        break;
+                    }
+                    else {
+                        break;
+                    }
+                }
+
+                String tag_lower_string = p_xml_string.substring(idx_closer + 1, idx_ender).trim();
+                //Console.WriteLine("tag_lower_string : " + tag_lower_string);
+
+                while (tag_lower_string.trim().length() > 0) {
+
+                    tag_lower_string = tag_lower_string.trim();
+
+                    if (tag_lower_string.startsWith("<") && !tag_lower_string.startsWith("<!")) {
+                        //Console.WriteLine("if_1 tag_lower_string : " + tag_lower_string);
+
+                        String inner_rmDQStr = replaceInnerDQ(tag_lower_string, '_');
+                        int inner_idx_closer = inner_rmDQStr.indexOf(">");
+                        String inner_tag_name = "";
+                        if (rmDQStr.indexOf(" ") > idx_closer) {
+                            inner_tag_name = tag_lower_string.substring(1, idx_closer).trim();
+                        }
+                        else {
+                            inner_tag_name = tag_lower_string.substring(1, inner_rmDQStr.indexOf(" ")).trim();
+                        }
+                        //Console.WriteLine("inner_tag_name : " + inner_tag_name);
+
+
+                        int inner_idx_ender = inner_rmDQStr.indexOf("</" + inner_tag_name + ">");
+                        String inner_data_string = "";
+                        if (inner_idx_ender < 0) {
+                            inner_data_string = tag_lower_string;
+                            tag_lower_string = "";
+                        }
+                        else {
+                            inner_data_string = tag_lower_string.substring(0, inner_idx_ender + ("</" + inner_tag_name + ">").length());
+                            tag_lower_string = tag_lower_string.substring(inner_data_string.length());
+                        }
+
+                        //Console.WriteLine("inner_data_string : " + inner_data_string);
+                        //Console.WriteLine("tag_lower_string : " + tag_lower_string);
+
+                        //
+                        if (!rtn_value.hasKey(inner_tag_name)) {
+                            AZList child_list = new AZList();
+                            child_list.add(toAZData(inner_data_string));
+                            rtn_value.add(inner_tag_name, child_list);
+                            child_list = null;
+                        }
+                        else {
+                            AZList child_list = rtn_value.getList(inner_tag_name);
+                            child_list.add(toAZData(inner_data_string));
+                            rtn_value.set(inner_tag_name, child_list);
+                            child_list = null;
+                        }
+                    }
+                    else {
+                        //Console.WriteLine("if_2 tag_lower_string : " + tag_lower_string);
+
+                        String inner_rmDQStr = replaceInnerDQ(tag_lower_string, '_');
+                        //Console.WriteLine("inner_rmDQStr : " + inner_rmDQStr);
+                        String inner_rmCDataStr = replaceInner(inner_rmDQStr, "<![CDATA[", "]]>", '_');
+                        //Console.WriteLine("inner_rmCDataStr : " + inner_rmCDataStr);
+
+                        int inner_end_index = inner_rmCDataStr.indexOf("<");
+                        if (inner_end_index < 0) {
+                            rtn_value.setValue(tag_lower_string);
+                            tag_lower_string = "";
+                        }
+                        else {
+                            rtn_value.setValue(tag_lower_string.substring(0, inner_end_index));
+                            tag_lower_string = tag_lower_string.substring(inner_end_index);
+                        }
+                        //System.out.println("value string : " + rtn_value.getName() + " / " + rtn_value.getValue());
+                    }
+                }
+
+                    /*
+                    if (tag_lower_string.startsWith("<")) {
+                        String inner_tag_name = tag_lower_string.substring(1, tag_lower_string.indexOf(" "));
+                        rtn_value.add(inner_tag_name, toAZData(tag_lower_string));
+                    }
+                    else {
+                        rtn_value.setValue(tag_lower_string);
+                    }
+                    */
+            }
+
+            return rtn_value;
+        }
+    }
+
     /**
      * JSON 관련된 문자열 처리에 대한 메소드들의 묶음 클래스
      * 작성일 : 2014-11-23 이용훈
@@ -527,11 +753,13 @@ public class AZString {
             return builder.toString();
         }
 
-        public AZList getList() {
-            return AZString.JSON.getList(this.json);
-        }
+        public AZList getList() { return toAZList(); }
+        public AZList toAZList() { return AZString.JSON.toAZList(this.json); }
 
         public static AZList getList(String pJsonString) {
+            return AZString.JSON.toAZList(pJsonString);
+        }
+        public static AZList toAZList(String pJsonString) {
             AZList rtnValue = new AZList();
             pJsonString = pJsonString.trim();
             if (pJsonString.charAt(0) == '[' && pJsonString.charAt(pJsonString.length() - 1) == ']') {

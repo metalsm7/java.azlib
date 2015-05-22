@@ -17,18 +17,35 @@
 package com.mparang.azlib.util;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+//import java.util.HashMap;
 
 /**
  * Created by leeyonghun on 14. 11. 13..
  */
 public class AZList {
     ArrayList<AZData> list = null;
-    private HashMap map_attribute = null;
+    //private HashMap map_attribute = null;
+    public AttributeData Attribute = null;
 
     public AZList() {
         list = new ArrayList<AZData>();
-        map_attribute = new HashMap();
+        //map_attribute = new HashMap();
+        Attribute = new AttributeData();
+    }
+    /*
+    synchronized public String[] getAttributeNames() {
+        String[] rtn_value = new String[map_attribute.size()];
+        
+        Object[] arrs = map_attribute.keySet().toArray();
+        //Dictionary<string, object>.Enumerator arrs = map_attribute.GetEnumerator();
+        for (int cnti = 0; cnti < arrs.length; cnti++) {
+            rtn_value[cnti] = arrs[cnti].toString();
+        }
+        return rtn_value;
+    }
+    
+    synchronized public Object getAttribute(String pName) {
+        return map_attribute.get(pName);
     }
 
     synchronized public String putAttribute(int pIdx, String pValue) {
@@ -45,6 +62,7 @@ public class AZList {
         map_attribute.clear();
         return rtnValue;
     }
+    */
 
     public boolean add(AZData pData) {
         return list.add(pData);
@@ -85,7 +103,151 @@ public class AZList {
         return "[" + builder.toString() + "]";
     }
 
+    public String toXmlString() {
+        StringBuilder builder = new StringBuilder();
+        for (int cnti = 0; cnti < size(); cnti++) {
+            AZData data = list.get(cnti);
+            builder.append(data.toXmlString());
+        }
+        return builder.toString();
+    }
+
     public AZData get(int pIndex) { return getData(pIndex); }
 
     public AZData getData(int pIndex) { return list.get(pIndex); }
+
+    private class KeyValue {
+        private String key;
+        private Object value;
+        // 기본 생성자
+        public KeyValue() {
+            this.key = "";
+            this.value = "";
+        }
+
+        public KeyValue(String p_key, Object p_value) {
+            this.key = p_key;
+            this.value = p_value;
+        }
+
+        public String getKey() { return this.key; }
+
+        public Object getValue() { return this.value; }
+        public void setValue(Object p_value) { this.value = p_value; }
+        @Override
+        public String toString() { return getKey() + ":" + getValue(); }
+    }
+
+    /**
+     * 속성값(attribute)에 대한 자료 저장용 클래스
+     * 작성일 : 2015-05-22 이용훈
+     */
+    public class AttributeData {
+        private ArrayList<KeyValue> attribute_list;
+
+        public AttributeData() {
+            this.attribute_list = new ArrayList<KeyValue>();
+        }
+
+        public Object add(String p_key, Object p_value) {
+            this.attribute_list.add(new KeyValue(p_key, p_value));
+            return p_value;
+        }
+
+        public Object insertAt(int p_index, String p_key, Object p_value) {
+            Object rtn_value = null;
+            if (p_index > -1 && p_index < size()) {
+                this.attribute_list.add(p_index, new KeyValue(p_key, p_value));
+                rtn_value = p_value;
+            }
+            return rtn_value;
+        }
+
+        public Object remove(String p_key) {
+            Object rtn_value = null;
+            for (int cnti=0; cnti<this.attribute_list.size(); cnti++) {
+                if (this.attribute_list.get(cnti).getKey().equals(p_key)) {
+                    rtn_value = this.attribute_list.get(cnti).getValue();
+                    this.attribute_list.remove(cnti);
+                    break;
+                }
+            }
+            return rtn_value;
+        }
+
+        public Object remove(int p_index) {
+            Object rtn_value = null;
+            if (p_index > -1 && p_index < size()) {
+                rtn_value = get(p_index);
+                this.attribute_list.remove(p_index);
+            }
+            return rtn_value;
+        }
+
+        public Object removeAt(int p_index) {
+            return remove(p_index);
+        }
+
+        public void clear() {
+            this.attribute_list.clear();
+        }
+
+        public int indexOf(String p_key) {
+            int rtn_value = -1;
+            for (int cnti=0; cnti<this.attribute_list.size(); cnti++) {
+                if (this.attribute_list.get(cnti).getKey().equals(p_key)) {
+                    rtn_value = cnti;
+                    break;
+                }
+            }
+            return rtn_value;
+        }
+
+        public Object get(String p_key) {
+            Object rtn_value = null;
+            for (int cnti=0; cnti<this.attribute_list.size(); cnti++) {
+                if (this.attribute_list.get(cnti).getKey().equals(p_key)) {
+                    rtn_value = this.attribute_list.get(cnti).getValue();
+                    break;
+                }
+            }
+            return rtn_value;
+        }
+
+        public Object get(int p_index) {
+            Object rtn_value = null;
+            if (p_index > -1 && p_index < size()) {
+                rtn_value = this.attribute_list.get(p_index).getValue();
+            }
+            return rtn_value;
+        }
+
+        public Object set(String p_key, Object p_value) {
+            Object rtn_value = null;
+            for (int cnti=0; cnti<this.attribute_list.size(); cnti++) {
+                if (this.attribute_list.get(cnti).getKey().equals(p_key)) {
+                    rtn_value = this.attribute_list.get(cnti).getValue();
+                    this.attribute_list.get(cnti).setValue(p_value);
+                    break;
+                }
+            }
+            return rtn_value;
+        }
+
+        public int size() {
+            return this.attribute_list.size();
+        }
+
+        public String getKey(int p_index) {
+            return this.attribute_list.get(p_index).getKey();
+        }
+
+        public String[] getKeys() {
+            String[] rtn_value = new String[this.attribute_list.size()];
+            for (int cnti=0; cnti<this.attribute_list.size(); cnti++) {
+                rtn_value[cnti] = this.attribute_list.get(cnti).getKey();
+            }
+            return rtn_value;
+        }
+    }
 }
