@@ -114,6 +114,41 @@ public class AZString {
         return AZString.toInt(pValue, 0);
     }
 
+    public float toFloat() {
+        return toFloat(0f);
+    }
+
+    public float toFloat(float pDefaultValue) {
+        float rtnValue = 0f;
+        if (this.value == null) {
+            rtnValue = pDefaultValue;
+        }
+        else {
+            try {
+                rtnValue = Float.parseFloat(this.value.toString());
+            }
+            catch (Exception ex) {
+                rtnValue = pDefaultValue;
+            }
+        }
+        return rtnValue;
+    }
+
+    public static float toFloat(String pValue, float pDefaultValue) {
+        float rtnValue = 0f;
+        try {
+            rtnValue = Float.parseFloat(pValue);
+        }
+        catch (Exception ex) {
+            rtnValue = pDefaultValue;
+        }
+        return rtnValue;
+    }
+
+    public static float toFloat(String pValue) {
+        return AZString.toFloat(pValue, 0f);
+    }
+
     public static String getRandom() {
         int randomLength = 6;
         Random random = new Random();
@@ -485,7 +520,6 @@ public class AZString {
         public XML(String p_xml) { this.xml = p_xml; }
 
         public static AZString.XML init(String p_xml) { return new AZString.XML(p_xml); }
-
 
         private static String replaceInnerDQ(String pString, char p_replace_chr) {
             return replaceInner(pString, "\"", "\"", p_replace_chr);

@@ -312,7 +312,7 @@ public class AZData {
         public String toString() { return getKey() + ":" + getLink(); }
     }
 
-    private class KeyValue {
+    private static class KeyValue {
         private String key;
         private Object value;
         // 기본 생성자
@@ -338,7 +338,7 @@ public class AZData {
      * 속성값(attribute)에 대한 자료 저장용 클래스
      * 작성일 : 2015-05-22 이용훈
      */
-    public class AttributeData {
+    public static class AttributeData {
         private ArrayList<KeyValue> attribute_list;
 
         public AttributeData() {
@@ -444,6 +444,20 @@ public class AZData {
                 rtn_value[cnti] = this.attribute_list.get(cnti).getKey();
             }
             return rtn_value;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder rtn_value = new StringBuilder();
+            for (int cnti=0; cnti<this.attribute_list.size(); cnti++) {
+                rtn_value.append((cnti > 0 ? ", " : "") + "\"" + AZString.toJSONSafeEncoding(getKey(cnti)) + "\"" +
+                        ":" + "\"" + (get(cnti) == null ? "" : AZString.toJSONSafeEncoding(get(cnti).toString())) + "\"");
+            }
+            return rtn_value.toString();
+        }
+
+        public String toJsonString() {
+            return "{" + toString() + "}";
         }
     }
 }
