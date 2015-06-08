@@ -177,7 +177,7 @@ public class AZSql {
                 ResultSetMetaData rsmd = rs.getMetaData();
 
                 if (rs.first() && rsmd.getColumnCount() > 0) {
-                    rtnValue = rs.getObject(0);
+                    rtnValue = rs.getObject(1);
                 }
             }
             else {
@@ -371,8 +371,9 @@ public class AZSql {
             rtnValue = true;
         }
         else if (this.db_info.getSqlType().equals(SQL_TYPE_SQLITE_ANDROID)) {
-            Class.forName("org.sqldroid.SqldroidDriver");
-            connection = DriverManager.getConnection(this.db_info.getConnectionString() != null ? this.db_info.getConnectionString() : "jdbc:sqldroid://" + this.db_info.getServer());
+            Class.forName("org.sqldroid.SQLDroidDriver");
+            connection = DriverManager.getConnection(this.db_info.getConnectionString() != null ? this.db_info.getConnectionString() : "jdbc:sqldroid:" + this.db_info.getServer());
+            rtnValue = true;
         }
         /** for 1.7
         switch (this.db_info.getSqlType()) {
@@ -394,11 +395,23 @@ public class AZSql {
     /**
      * Created : 2015-06-03 leeyonghun
      */
+    synchronized public Connection openTest() throws Exception {
+        Class.forName("org.sqldroid.SQLDroidDriver");
+        connection = DriverManager.getConnection(this.db_info.getConnectionString() != null ? this.db_info.getConnectionString() : "jdbc:sqldroid:" + this.db_info.getServer());
+
+        return connection;
+    }
+
+    /**
+     * Created : 2015-06-03 leeyonghun
+     */
     synchronized private boolean close() throws Exception {
         boolean rtnValue = false;
 
-        if (!connection.isClosed()) {
+        if (connection != null && !connection.isClosed()) {
             connection.close();
+        }
+        if (statement != null && !statement.isClosed()) {
             statement.close();
         }
 
