@@ -581,6 +581,21 @@ public class AZSql {
         private String query;
         private boolean has_schema_data;
 
+        public Basic(String p_table_name) throws Exception {
+            if (p_table_name.trim().length() < 1) {
+                throw new Exception("Target table name not specified.");
+            }
+            this.table_name = AZString.toSQLSafeEncoding(p_table_name);
+
+            sql_where = new AZList();
+            sql_set = new AZList();
+            data_schema = null;
+
+            has_schema_data = false;
+
+            query = "";
+        }
+
         public Basic(String p_table_name, DBConnectionInfo p_db_connection_info) throws Exception {
             if (p_table_name.trim().length() < 1) {
                 throw new Exception("Target table name not specified.");
@@ -658,6 +673,14 @@ public class AZSql {
                     break;
             }
              */
+        }
+
+        /**
+         * Created in 2015-06-10, leeyonghun
+         */
+        public void clear() {
+            this.sql_set.clear();
+            this.sql_where.clear();
         }
 
         /**
@@ -1009,6 +1032,9 @@ public class AZSql {
          */
         public int doDelete(boolean p_need_where) throws Exception {
             int rtn_value = -1;
+            if (this.db_info == null) {
+                throw new Exception("DBConnectionInfo is not specified.");
+            }
             if (p_need_where && this.sql_where.size() < 1) {
                 throw new Exception("Where datas required.");
             }
@@ -1030,6 +1056,9 @@ public class AZSql {
          */
         public int doUpdate(boolean p_need_where) throws Exception {
             int rtn_value = -1;
+            if (this.db_info == null) {
+                throw new Exception("DBConnectionInfo is not specified.");
+            }
             if (this.sql_set.size() < 1) {
                 throw new Exception("Set datas required.");
             }
@@ -1046,6 +1075,9 @@ public class AZSql {
          */
         public int doInsert() throws Exception {
             int rtn_value = -1;
+            if (this.db_info == null) {
+                throw new Exception("DBConnectionInfo is not specified.");
+            }
             if (this.sql_set.size() < 1) {
                 throw new Exception("Set datas required.");
             }
