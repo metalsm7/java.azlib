@@ -244,9 +244,20 @@ public class AZSql {
     }
 
     /**
-     * Created : 2015-06-03 leeyonghun
+     *
+     * @param pQuery
+     * @return
+     * @throws Exception
+     * Created in 2015-06-10, leeyonghun
      */
     synchronized public AZData getData(String pQuery) throws Exception {
+        return getData(pQuery, false);
+    }
+
+    /**
+     * Created : 2015-06-03 leeyonghun
+     */
+    synchronized public AZData getData(String pQuery, boolean pReadAttribute) throws Exception {
         AZData rtnValue = null;
 
         try {
@@ -262,19 +273,21 @@ public class AZSql {
                     for (int cnti=1; cnti<=rsmd.getColumnCount(); cnti++) {
                         rtnValue.add(rsmd.getColumnLabel(cnti), rs.getObject(cnti));
 
-                        try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_LABEL, rsmd.getColumnLabel(cnti)); } catch (Exception ex) { }
-                        try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_NAME, rsmd.getColumnName(cnti)); } catch (Exception ex) { }
-                        try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_TYPE, AZString.init(rsmd.getColumnType(cnti)).string()); } catch (Exception ex) { }
-                        try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_TYPE_NAME, rsmd.getColumnTypeName(cnti)); } catch (Exception ex) { }
-                        try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_SCHEMA_NAME, rsmd.getSchemaName(cnti)); } catch (Exception ex) { }
-                        try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_DISPLAY_SIZE, rsmd.getColumnDisplaySize(cnti)); } catch (Exception ex) { }
-                        try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_PRECISION, rsmd.getPrecision(cnti)); } catch (Exception ex) { }
-                        try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_IS_AUTO_INCREMENT, rsmd.isAutoIncrement(cnti)); } catch (Exception ex) { }
-                        try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_IS_CASE_SENSITIVE, rsmd.isCaseSensitive(cnti)); } catch (Exception ex) { }
-                        try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_IS_NULLABLE, rsmd.isNullable(cnti)); } catch (Exception ex) { }
-                        try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_IS_READONLY, rsmd.isReadOnly(cnti)); } catch (Exception ex) { }
-                        try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_IS_WRITABLE, rsmd.isWritable(cnti)); } catch (Exception ex) { }
-                        try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_IS_SIGNED, rsmd.isSigned(cnti)); } catch (Exception ex) { }
+                        if (pReadAttribute) {
+                            try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_LABEL, rsmd.getColumnLabel(cnti)); } catch (Exception ex) { }
+                            try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_NAME, rsmd.getColumnName(cnti)); } catch (Exception ex) { }
+                            try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_TYPE, AZString.init(rsmd.getColumnType(cnti)).string()); } catch (Exception ex) { }
+                            try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_TYPE_NAME, rsmd.getColumnTypeName(cnti)); } catch (Exception ex) { }
+                            try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_SCHEMA_NAME, rsmd.getSchemaName(cnti)); } catch (Exception ex) { }
+                            try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_DISPLAY_SIZE, rsmd.getColumnDisplaySize(cnti)); } catch (Exception ex) { }
+                            try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_PRECISION, rsmd.getPrecision(cnti)); } catch (Exception ex) { }
+                            try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_IS_AUTO_INCREMENT, rsmd.isAutoIncrement(cnti)); } catch (Exception ex) { }
+                            try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_IS_CASE_SENSITIVE, rsmd.isCaseSensitive(cnti)); } catch (Exception ex) { }
+                            try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_IS_NULLABLE, rsmd.isNullable(cnti)); } catch (Exception ex) { }
+                            try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_IS_READONLY, rsmd.isReadOnly(cnti)); } catch (Exception ex) { }
+                            try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_IS_WRITABLE, rsmd.isWritable(cnti)); } catch (Exception ex) { }
+                            try { rtnValue.Attribute.add(ATTRIBUTE_COLUMN_IS_SIGNED, rsmd.isSigned(cnti)); } catch (Exception ex) { }
+                        }
                     }
                     break;
                 }
@@ -295,9 +308,20 @@ public class AZSql {
     }
 
     /**
-     * Created : 2015-06-03 leeyonghun
+     *
+     * @param pQuery
+     * @return
+     * @throws Exception
+     * Created in 2015-06-10, leeyonghun
      */
     synchronized public AZList getList(String pQuery) throws Exception {
+        return getList(pQuery, false);
+    }
+
+    /**
+     * Created : 2015-06-03 leeyonghun
+     */
+    synchronized public AZList getList(String pQuery, boolean pReadAttribute) throws Exception {
         AZList rtnValue = null;
 
         try {
@@ -315,19 +339,21 @@ public class AZSql {
                     for (int cnti=1; cnti<=rsmd.getColumnCount(); cnti++) {
                         data.add(rsmd.getColumnName(cnti), rs.getObject(cnti));
 
-                        try { data.Attribute.add(ATTRIBUTE_COLUMN_LABEL, rsmd.getColumnLabel(cnti)); } catch (Exception ex) { }
-                        try { data.Attribute.add(ATTRIBUTE_COLUMN_NAME, rsmd.getColumnName(cnti)); } catch (Exception ex) { }
-                        try { data.Attribute.add(ATTRIBUTE_COLUMN_TYPE, AZString.init(rsmd.getColumnType(cnti)).string()); } catch (Exception ex) { }
-                        try { data.Attribute.add(ATTRIBUTE_COLUMN_TYPE_NAME, rsmd.getColumnTypeName(cnti)); } catch (Exception ex) { }
-                        try { data.Attribute.add(ATTRIBUTE_COLUMN_SCHEMA_NAME, rsmd.getSchemaName(cnti)); } catch (Exception ex) { }
-                        try { data.Attribute.add(ATTRIBUTE_COLUMN_DISPLAY_SIZE, rsmd.getColumnDisplaySize(cnti)); } catch (Exception ex) { }
-                        try { data.Attribute.add(ATTRIBUTE_COLUMN_PRECISION, rsmd.getPrecision(cnti)); } catch (Exception ex) { }
-                        try { data.Attribute.add(ATTRIBUTE_COLUMN_IS_AUTO_INCREMENT, rsmd.isAutoIncrement(cnti)); } catch (Exception ex) { }
-                        try { data.Attribute.add(ATTRIBUTE_COLUMN_IS_CASE_SENSITIVE, rsmd.isCaseSensitive(cnti)); } catch (Exception ex) { }
-                        try { data.Attribute.add(ATTRIBUTE_COLUMN_IS_NULLABLE, rsmd.isNullable(cnti)); } catch (Exception ex) { }
-                        try { data.Attribute.add(ATTRIBUTE_COLUMN_IS_READONLY, rsmd.isReadOnly(cnti)); } catch (Exception ex) { }
-                        try { data.Attribute.add(ATTRIBUTE_COLUMN_IS_WRITABLE, rsmd.isWritable(cnti)); } catch (Exception ex) { }
-                        try { data.Attribute.add(ATTRIBUTE_COLUMN_IS_SIGNED, rsmd.isSigned(cnti)); } catch (Exception ex) { }
+                        if (pReadAttribute) {
+                            try { data.Attribute.add(ATTRIBUTE_COLUMN_LABEL, rsmd.getColumnLabel(cnti)); } catch (Exception ex) { }
+                            try { data.Attribute.add(ATTRIBUTE_COLUMN_NAME, rsmd.getColumnName(cnti)); } catch (Exception ex) { }
+                            try { data.Attribute.add(ATTRIBUTE_COLUMN_TYPE, AZString.init(rsmd.getColumnType(cnti)).string()); } catch (Exception ex) { }
+                            try { data.Attribute.add(ATTRIBUTE_COLUMN_TYPE_NAME, rsmd.getColumnTypeName(cnti)); } catch (Exception ex) { }
+                            try { data.Attribute.add(ATTRIBUTE_COLUMN_SCHEMA_NAME, rsmd.getSchemaName(cnti)); } catch (Exception ex) { }
+                            try { data.Attribute.add(ATTRIBUTE_COLUMN_DISPLAY_SIZE, rsmd.getColumnDisplaySize(cnti)); } catch (Exception ex) { }
+                            try { data.Attribute.add(ATTRIBUTE_COLUMN_PRECISION, rsmd.getPrecision(cnti)); } catch (Exception ex) { }
+                            try { data.Attribute.add(ATTRIBUTE_COLUMN_IS_AUTO_INCREMENT, rsmd.isAutoIncrement(cnti)); } catch (Exception ex) { }
+                            try { data.Attribute.add(ATTRIBUTE_COLUMN_IS_CASE_SENSITIVE, rsmd.isCaseSensitive(cnti)); } catch (Exception ex) { }
+                            try { data.Attribute.add(ATTRIBUTE_COLUMN_IS_NULLABLE, rsmd.isNullable(cnti)); } catch (Exception ex) { }
+                            try { data.Attribute.add(ATTRIBUTE_COLUMN_IS_READONLY, rsmd.isReadOnly(cnti)); } catch (Exception ex) { }
+                            try { data.Attribute.add(ATTRIBUTE_COLUMN_IS_WRITABLE, rsmd.isWritable(cnti)); } catch (Exception ex) { }
+                            try { data.Attribute.add(ATTRIBUTE_COLUMN_IS_SIGNED, rsmd.isSigned(cnti)); } catch (Exception ex) { }
+                        }
                     }
                     rtnValue.add(data);
                 }
