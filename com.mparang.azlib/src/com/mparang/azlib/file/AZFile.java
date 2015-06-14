@@ -7,7 +7,7 @@ import java.io.File;
  * Created by leeyonghun on 15. 6. 13..
  */
 public class AZFile {
-    private File file_this;
+    protected File file_this;
 
     /**
      * Created in 2015-06-13, leeyonghun
