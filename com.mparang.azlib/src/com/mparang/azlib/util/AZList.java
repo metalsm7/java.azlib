@@ -27,6 +27,8 @@ public class AZList {
     //private HashMap map_attribute = null;
     public AttributeData Attribute = null;
 
+    private String _name = "", _value = "";
+
     public AZList() {
         list = new ArrayList<AZData>();
         //map_attribute = new HashMap();
@@ -35,7 +37,7 @@ public class AZList {
     /*
     synchronized public String[] getAttributeNames() {
         String[] rtn_value = new String[map_attribute.size()];
-        
+
         Object[] arrs = map_attribute.keySet().toArray();
         //Dictionary<string, object>.Enumerator arrs = map_attribute.GetEnumerator();
         for (int cnti = 0; cnti < arrs.length; cnti++) {
@@ -43,7 +45,7 @@ public class AZList {
         }
         return rtn_value;
     }
-    
+
     synchronized public Object getAttribute(String pName) {
         return map_attribute.get(pName);
     }
@@ -63,6 +65,14 @@ public class AZList {
         return rtnValue;
     }
     */
+
+    public String getName() { return this._name; }
+
+    public void setName(String p_name) { this._name = p_name; }
+
+    public String getValue() { return this._value; }
+
+    public void setValue(String p_value) { this._value = p_value; }
 
     public boolean add(AZData pData) {
         return list.add(pData);

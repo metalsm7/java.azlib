@@ -52,7 +52,7 @@ public class AZData {
     /*
     synchronized public String[] getAttributeNames() {
         String[] rtn_value = new String[map_attribute.size()];
-        
+
         Object[] arrs = map_attribute.keySet().toArray();
         //Dictionary<string, object>.Enumerator arrs = map_attribute.GetEnumerator();
         for (int cnti = 0; cnti < arrs.length; cnti++) {
@@ -60,7 +60,7 @@ public class AZData {
         }
         return rtn_value;
     }
-    
+
     synchronized public Object getAttribute(String pName) {
         return map_attribute.get(pName);
     }
