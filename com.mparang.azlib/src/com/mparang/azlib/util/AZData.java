@@ -446,6 +446,23 @@ public class AZData {
             return rtn_value;
         }
 
+        /**
+         *
+         * @param p_key
+         * @return
+         * Created in 2015-07-03, leeyonghun
+         */
+        public boolean hasKey(String p_key) {
+            boolean rtn_value = false;
+            for (int cnti=0; cnti<this.attribute_list.size(); cnti++) {
+                if (this.attribute_list.get(cnti).getKey().equals(p_key)) {
+                    rtn_value = true;
+                    break;
+                }
+            }
+            return rtn_value;
+        }
+
         @Override
         public String toString() {
             StringBuilder rtn_value = new StringBuilder();
