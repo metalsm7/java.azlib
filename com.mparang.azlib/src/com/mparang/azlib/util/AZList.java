@@ -18,6 +18,7 @@ package com.mparang.azlib.util;
 
 import com.mparang.azlib.text.AZString;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 //import java.util.HashMap;
 
@@ -127,6 +128,23 @@ public class AZList {
     public AZData get(int pIndex) { return getData(pIndex); }
 
     public AZData getData(int pIndex) { return list.get(pIndex); }
+
+    public <T> T[] convert(Class<T> pEntity) {
+        //System.out.println("convert #1");
+        T[] rtn_value = (T[]) Array.newInstance(pEntity, size());
+        //System.out.println("convert #2");
+        for (int cnti=0; cnti<size(); cnti++) {
+            //System.out.println("convert #3 : " + get(cnti));
+            try {
+                rtn_value[cnti] = get(cnti).convert(pEntity);
+                //System.out.println("convert #4");
+            }
+            catch (Exception ex) {
+                //System.out.println("convert #4 ex : " + ex.toString());
+            }
+        }
+        return rtn_value;
+    }
 
     private class KeyValue {
         private String key;

@@ -16,8 +16,13 @@
  */
 package com.mparang.azlib.util;
 
+import apple.laf.JRSUIConstants;
 import com.mparang.azlib.text.AZString;
+import com.sun.istack.internal.Nullable;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -111,6 +116,99 @@ public class AZData {
 
     public void setValue(String p_value) { this._value = p_value; }
 
+    /**
+     *
+     * @param pEntity
+     * @param <T>
+     * @return
+     * Created in 2015-07-26, leeyonghun
+     */
+    public <T> T convert(Class<T> pEntity) {
+        T rtn_value = null;
+        try {
+            rtn_value = (T)pEntity.newInstance();
+        }
+        catch (Exception ex) {
+            //System.out.println("convert ex - " + ex.toString());
+        }
+        return convert(rtn_value);
+    }
+    /**
+     *
+     * @param pEntity
+     * @param <T>
+     * @return
+     * Created in 2015-07-26, leeyonghun
+     */
+    private <T> T convert(T pEntity) {
+        for (int cnti = 0; cnti < size(); cnti++) {
+            String key = getKey(cnti);
+            Field field = null;
+            try {
+                field = pEntity.getClass().getField(key);
+            } catch (Exception ex) {
+                //ex.printStackTrace();
+            }
+
+            if (field != null) {
+                // 동일한 key값이 존재하는 경우
+                try {
+                    if (field.getType() == int.class) {
+                        field.setInt(pEntity, getInt(key));
+                    } else if (field.getType() == float.class) {
+                        field.setFloat(pEntity, getFloat(key));
+                    } else if (field.getType() == float.class) {
+                        field.set(pEntity, getString(key));
+                    } else {
+                        field.set(pEntity, get(key));
+                    }
+                } catch (Exception ex) {
+                    //ex.printStackTrace();
+                }
+            } else {
+                Method method = null;
+                Class<?> type = null;
+                try {
+                    String methodName = "set" + key.substring(0, 1).toUpperCase() + key.substring(1);
+                    Method[] methods = pEntity.getClass().getDeclaredMethods();
+                    for (int cntk=0; cntk<methods.length; cntk++) {
+
+                        if (methods[cntk].getName().equals(methodName)) {
+                            if (methods[cntk].getParameterTypes().length != 1) {
+                                continue;
+                            }
+                            type = methods[cntk].getParameterTypes()[0];
+                            method = pEntity.getClass().getDeclaredMethod(methodName, type);
+                            break;
+                        }
+                    }
+                } catch (Exception ex) {
+                    //ex.printStackTrace();
+                }
+
+                if (method != null) {
+                    try {
+                        if (type == int.class) {
+                            method.invoke(pEntity, getInt(key));
+                        }
+                        else if (type == float.class) {
+                            method.invoke(pEntity, getFloat(key));
+                        }
+                        else if (type == String.class) {
+                            method.invoke(pEntity, getString(key));
+                        }
+                        else {
+                            method.invoke(pEntity, get(key));
+                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        }
+        return pEntity;
+    }
+
     public Object get(int pIndex) { return map_async.get(indexer.get(pIndex).getLink()); }
 
     public Object get(String pKey) { return map_async.get(pKey); }
@@ -134,6 +232,14 @@ public class AZData {
     public int getInt(String pKey) { return AZString.toInt(getString(pKey), 0); }
 
     public int getInt(String pKey, int pDefaultValue) { return AZString.toInt(getString(pKey), pDefaultValue); }
+
+    public float getFloat(int pIndex) { return AZString.toFloat(getString(pIndex), 0); }
+
+    public float getFloat(int pIndex, float pDefaultValue) { return AZString.toFloat(getString(pIndex), pDefaultValue); }
+
+    public float getFloat(String pKey) { return AZString.toFloat(getString(pKey), 0); }
+
+    public float getFloat(String pKey, float pDefaultValue) { return AZString.toFloat(getString(pKey), pDefaultValue); }
 
     public String getKey(int pIndex) { return indexer.get(pIndex).getKey(); }
 
